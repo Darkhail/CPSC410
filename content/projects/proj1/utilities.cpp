@@ -7,6 +7,7 @@
 
 #include "utilities.h"
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -52,7 +53,7 @@ int loadData(const char* filename){
 		p.push_back(x);
 
 	}
-
+	infile.close();
 	return SUCCESS;
 }
 
@@ -63,13 +64,44 @@ int saveData(const char* filename){
 	if(!out.is_open()){
 		return COULD_NOT_OPEN_FILE;
 	}
+	out.clear();
+	process_stats y;
 
+	if(!p.empty()){
+		y = getNext();
+
+		out << y.process_number + ',' + y.start_time + ',' + y.cpu_time;
+	}
+
+
+
+
+
+
+
+	out.close();
 	return SUCCESS;
 }
 
-void sortData(SORT_ORDER mySortOrder){
+bool compareB(const process_stats &a, process_stats &b){
+	if(a.cpu_time == b.cpu_time){
+		if(a.process_number == b.process_number){
+			return a.start_time<b.start_time;
+		}else{
+			return a.process_number<b.process_number;
+		}
+	}else{
+		return a.cpu_time < b.cpu_time;
+	}
 
+	return true;
 }
+
+void sortData(SORT_ORDER mySortOrder){
+	sort(p.begin(), p.end(), compareB);
+}
+
+
 
 process_stats getNext(){
 	process_stats q = p.front();
